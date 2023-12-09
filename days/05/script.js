@@ -93,6 +93,15 @@ const partOne = () => {
  * And for each range we need to determine how it intersects with each of next ranges (from relevant map).
  * That will generate a new set of ranges (that may be shifted), each of which must be intersected with each of NEXT ranges (and so on).
  * Until we reach end, where we are looking for the smallest possible value that we can make, from any of our ranges, and the relevant map.
+ *
+ *
+ * Right.. we start with seed ranges. We always, at each step, have some list of ranges that include nums we care about
+ * (that are possible to reach from seeds).
+ * Then at each new level, we need to go through all the rules, and we need to find
+ * WHERE THEY OVERLAP/INTERSECT with any of the intervals we care about.
+ * (And then you have to shift some of them)
+ * So having that function is like 90% of the work.
+ * And then the final step... you just compare each value against a stored minimum.
  */
 
 const partTwo = () => {
@@ -107,27 +116,98 @@ const partTwo = () => {
 
   console.log(seeds, allRules);
 
-  const endpoints = [];
+  // These are the "intervals we care about" -- endpoints of intervals that seeds may reach.
+  let endpoints = [];
+  for (let i = 0; i < seeds.length; i += 2) {
+    endpoints.push([seeds[i], seeds[i] + seeds[i + 1] - 1]);
+  }
+  console.log(endpoints);
+
+  //   let minimumReachableLocation = Infinity;
 
   orderOfMaps.forEach((val) => {
     const key = Object.keys(allRules).find((k) => k.startsWith(val));
     const rules = allRules[key];
-    console.log(rules);
+    // console.log(key, rules);
 
-    rules.forEach((r) => {});
+    const newEndpoints = [];
+
+    // if (key.startsWith("humidity")) {
+    //   // Final case -- check for minimum
+    //   console.log("Total final endpoints", endpoints.length);
+    // //   if (endpoints)
+    // } else {
+    // Add new endpoints, then shift any required endpoints
+    rules.forEach((r) => {
+      endpoints.forEach((pts) => {
+        const [e1, e2] = pts;
+        const range = [r[1], r[1] + r[2] - 1];
+        const [r1, r2] = range;
+        const doOverlap = Math.max(e1, r1) <= Math.min(e2, r2);
+        const shiftVal = r[0] - r1; // Say the src is 7, and dest is 2 -- then we shift by -5
+
+        // Four cases for how the ranges may overlap -- well, and the fifth case where they don't overlap at all..
+        if (doOverlap) {
+          if (r1 <= e1 && r2 >= e2) {
+            // Easy case -- points we care about are enclosed by src range: shift them all
+            newEndpoints.push([e1 + shiftVal, e2 + shiftVal]);
+          } else if (r1 >= e1 && r2 <= e2) {
+            // Hard case -- points we care about are enclosed within src range
+            newEndpoints.push([e1, r1]);
+            newEndpoints.push([r1 + shiftVal, r2 + shiftVal]);
+            newEndpoints.push([r2, e2]);
+          } else if (e1 <= r1) {
+            // Points we care about left-overlaps src range
+            newEndpoints.push([e1, r1]);
+            newEndpoints.push([r1 + shiftVal, e2 + shiftVal]);
+          } else {
+            // Points we care about right-overlaps src range
+            newEndpoints.push([e1, r2]);
+            newEndpoints.push([r2 + shiftVal, e2 + shiftVal]);
+          }
+        } else {
+          newEndpoints.push([e1, e2]);
+        }
+      });
+    });
+    // }
+    endpoints = [];
+    newEndpoints.forEach((e, i) => {
+      if (!endpoints.some((a) => a[0] === e[0] && a[1] === e[1])) {
+        endpoints.push(e);
+      }
+    });
+
+    console.log(
+      "First few endpoints...",
+      key,
+      endpoints
+        .filter((x) => x[0] !== 0)
+        .sort((a, b) => a[0] - b[0])
+        .slice(0, 5)
+    );
   });
 
-  const startingRanges = [];
+  //   console.log(
+  //     "Final endpoints...",
+  //     endpoints.sort((a, b) => a[0] - b[0]).slice(0, 5),
+  //     Math.min(...endpoints.map((e) => e[0]))
+  //   );
+  //   const startingRanges = [];
 
-  const findMinimumLocationValueAvailableFromRanges = (
-    ranges,
-    map,
-    isLast = false
-  ) => {
-    if (isLast) {
-    } else {
-    }
-  };
+  //   const findMinimumLocationValueAvailableFromRanges = (
+  //     ranges,
+  //     map,
+  //     isLast = false
+  //   ) => {
+  //     if (isLast) {
+  //     } else {
+  //     }
+  //   };
+
+  const s = new Set();
+  s.add([1, 1]);
+  s.add([1, 1]);
 };
 
 partTwo();

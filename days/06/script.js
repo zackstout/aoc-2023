@@ -20,6 +20,19 @@ const parseTwo = (txt) => {
   });
 };
 
+const findNumWaysToWin = (time, recordDistance) => {
+  let numWaysToWin = 0;
+
+  for (let j = 1; j < time; j++) {
+    const dist = j * (time - j);
+    if (dist > recordDistance) {
+      numWaysToWin++;
+    }
+  }
+
+  return numWaysToWin;
+};
+
 const partOne = () => {
   let total = 1;
 
@@ -31,16 +44,7 @@ const partOne = () => {
     const time = data[0][i];
     const recordDistance = data[1][i];
     console.log(time, recordDistance);
-
-    let numWaysToWin = 0;
-
-    for (let j = 1; j < time; j++) {
-      const dist = j * (time - j);
-      if (dist > recordDistance) {
-        numWaysToWin++;
-      }
-    }
-
+    const numWaysToWin = findNumWaysToWin(time, recordDistance);
     total *= numWaysToWin;
   }
   console.log(total);
@@ -49,19 +53,11 @@ const partOne = () => {
 const partTwo = () => {
   const d = parseTwo(input);
   console.log(d);
-
   const [time, recordDistance] = d;
-
-  let numWaysToWin = 0;
-
-  for (let j = 1; j < time; j++) {
-    const dist = j * (time - j);
-    if (dist > recordDistance) {
-      numWaysToWin++;
-    }
-  }
-
+  const numWaysToWin = findNumWaysToWin(time, recordDistance);
   console.log(numWaysToWin);
 };
 
-partTwo();
+console.time("run");
+partOne();
+console.timeEnd("run");
