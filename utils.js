@@ -55,6 +55,7 @@ const chunk = (arr, size) => {
   return chunks;
 };
 
+// Oh wait.... can we just join the arrays into strings and test equality on those... probably
 const arraysEqual = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
   for (let i = 0; i < arr1.length; i++) {

@@ -39,7 +39,7 @@ const arraysEqual = (arr1, arr2) => {
 };
 
 const getLineOfReflection = (gridInfo) => {
-  const { map, rows, cols } = gridInfo;
+  const { rows, cols } = gridInfo;
   //   console.log("get line...", rows);
   // Treat i as referring to the space AFTER the row at index i
   for (let i = 0; i < rows - 1; i++) {
@@ -142,10 +142,10 @@ const partTwo = () => {
   gridTexts.forEach((gt, gridIdx) => {
     const { rows, cols, map } = getGridMap(gt);
 
-    if (gridIdx !== 5) {
-      return;
-    }
-    console.log(map);
+    // if (gridIdx !== 5) {
+    //   return;
+    // }
+    // console.log(map);
 
     // Store original line of reflection -- need to ensure other one is NEW
     let lor = getLineOfReflection({ rows, cols, map });
@@ -172,8 +172,10 @@ const partTwo = () => {
       i++;
       // if (i > 5) break;
     }
+
     if (i === rows * cols) {
-      console.log("Uh oh", gridIdx);
+      console.log("Uh oh", gridIdx, rows, cols);
+      throw Error("there ought to be a new LoR...");
     }
 
     const { type, value } = lor;
@@ -190,5 +192,5 @@ const partTwo = () => {
 // 22s .... shoot, 41349 is too low....
 // Ok, because we're missing a lot of grids.... that is we're not finding a different line of ref....
 console.time("two");
-console.log(partTwo());
+console.log("TWO", partTwo());
 console.timeEnd("two");
