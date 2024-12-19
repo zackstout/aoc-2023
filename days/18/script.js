@@ -15,8 +15,10 @@ const ex = `R 6 (#70c710)
     L 2 (#015232)
     U 2 (#7a21e3)`;
 
+let isTest = false;
+
 const run = () => {
-  const d = ex.split("\n").map((x) => x.trim().split(" "));
+  const d = (isTest ? ex : input).split("\n").map((x) => x.trim().split(" "));
   const dims = { x: 0, y: 0 };
   const maxDims = { x: 0, y: 0 };
   const minDims = { x: 0, y: 0 };
@@ -75,6 +77,8 @@ const run = () => {
     // console.log("pos", pos);
     // console.log("...", result[pos.y]);
 
+    // Trace out the border:
+
     while (val > 0) {
       result[pos.y][pos.x] = "#";
 
@@ -84,7 +88,12 @@ const run = () => {
       val--;
     }
   });
-  console.log(result.map((x) => x.join("")).join("\n"));
+  // console.log(result.map((x) => x.join("")).join("\n"));
+
+  // Testing part two to ensure we can same answer, which we do...
+  // return [...border.keys()]
+  //   .map((key) => key.split(",").map(Number))
+  //   .map((arr) => [arr[0] - minDims.x, arr[1] - minDims.y]);
 
   //   let sum = 0;
 
@@ -93,9 +102,11 @@ const run = () => {
   const seen = new Map();
   const unvisited = [];
 
-  // DON'T FORGET, MUST SWAP THIS BETWEEN EXAMPLE AND REAL INPUT
-  //   const start = { x: -minDims.x - 1, y: -minDims.y - 1 };
-  const start = { x: 1, y: 1 };
+  let start = { x: -minDims.x - 1, y: -minDims.y - 1 };
+  // const start = { x: 1, y: 1 };
+  if (isTest) {
+    start = { x: 1, y: 1 };
+  }
   unvisited.push(start);
 
   const deltas = [
@@ -111,9 +122,12 @@ const run = () => {
 
   let i = 0;
 
+  // Floodfill the inside to find the interior area:
+
   while (unvisited.length > 0) {
     // OMG YOU'RE JOKING, WE JUST HAD TO POP INSTEAD OF SHIFT??????
     // Then it works super fast and spits out right answer...... WOW.
+    // I guess that's dfs instead of bfs, eh?
     const n = unvisited.pop();
     i++;
     seen.set(`${n.x},${n.y}`, 1);
@@ -187,6 +201,7 @@ const runTwo = () => {
   const vertices = new Map();
   let borderSize = 0;
 
+  // Compute border size:
   d.forEach((x) => {
     let [dir, val, hex] = x;
 
@@ -211,7 +226,7 @@ const runTwo = () => {
     borderSize += val;
   });
 
-  // SHOELACE algorithm
+  // SHOELACE algorithm (to find interior area)
   let firstSum = 0;
   let secondSum = 0;
 
@@ -224,7 +239,14 @@ const runTwo = () => {
     .map((x) => x.split(",").map((n) => parseInt(n)))
     .map((v) => [v[0] - minDims.x + offset, v[1] - minDims.y + offset]);
 
-  console.log(vs.every((v) => v[0] >= 0 && v[1] >= 0));
+  // console.log(vs.every((v) => v[0] >= 0 && v[1] >= 0));
+
+  // let vs = run();
+
+  // console.log(vs.length);
+  // vs = vs
+  // .map((k) => k.split(",").map(Number))
+  // .map((v) => [v[0] - minDims.x + offset, v[1] - minDims.y + offset]);
 
   //   const vs = [
   //     [0, 0],
@@ -242,13 +264,15 @@ const runTwo = () => {
 
   const shoelaceArea = 0.5 * Math.abs(firstSum - secondSum);
 
+  console.log(shoelaceArea, borderSize);
+
   //   return { shoelaceArea, border: border.size, interior: seen.size };
 
   // COMBINE SHOELACE WITH PICK'S THEOREM -- MAGIC???? (helps account for fact our grid doesn't match integer coordinate grid perfectly)
   // Ahhhhh wow this guy explains it beautifully: https://www.reddit.com/r/adventofcode/comments/18l8mao/2023_day_18_intuition_for_why_spoiler_alone/
   // I just found it as a guessed pattern from relevant quantities from example case
   // But yeah this insight essentially IS Pick's theorem
-  return shoelaceArea + borderSize / 2 + 1;
+  return shoelaceArea + Math.floor(borderSize / 2) + 1;
 
   return vertices;
 };
@@ -267,8 +291,8 @@ const runTwo = () => {
 // Had to change shift to pop!
 
 // PART TWO
-// Shoot, 106941819907454 is too high...... but we got right answer for example..... 952408144115
-// Omg and 106941819907366 is TOO LOW!!
+// Shoot, 106941819907_454 is too high...... but we got right answer for example..... 952408144115
+// Omg and 106941819907_366 is TOO LOW!!
 console.time("run");
 console.log("Result", runTwo());
 console.timeEnd("run");

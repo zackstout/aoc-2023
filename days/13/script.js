@@ -38,7 +38,7 @@ const arraysEqual = (arr1, arr2) => {
   return true;
 };
 
-const getLineOfReflection = (gridInfo) => {
+const getLineOfReflection = (gridInfo, ignore) => {
   const { rows, cols } = gridInfo;
   //   console.log("get line...", rows);
   // Treat i as referring to the space AFTER the row at index i
@@ -62,7 +62,9 @@ const getLineOfReflection = (gridInfo) => {
       idx2++;
     }
 
-    if (areEqual) {
+    // console.log("get lor", ignore?.type, ignore?.type);
+
+    if (areEqual && !(ignore?.type === "row" && ignore?.value === i + 1)) {
       return {
         type: "row",
         value: i + 1, // We want number of rows above, so add 1
@@ -91,7 +93,7 @@ const getLineOfReflection = (gridInfo) => {
       idx2++;
     }
 
-    if (areEqual) {
+    if (areEqual && !(ignore?.type === "col" && ignore?.value === i + 1)) {
       return {
         type: "col",
         value: i + 1, // We want number of rows above, so add 1
@@ -123,6 +125,7 @@ const partOne = () => {
 // For part two.... Each grid has exactly one cell that needs to be swapped to the other value, in order to produce a different line of reflection....
 
 // A SMUDGE.... ON THE LENS..?!?
+// lol
 
 const dupeMap = (m) => {
   const r = new Map();
@@ -131,6 +134,8 @@ const dupeMap = (m) => {
   });
   return r;
 };
+
+// ================================================================================
 
 const partTwo = () => {
   const gridTexts = input.split("\n\n");
@@ -142,7 +147,7 @@ const partTwo = () => {
   gridTexts.forEach((gt, gridIdx) => {
     const { rows, cols, map } = getGridMap(gt);
 
-    // if (gridIdx !== 5) {
+    // if (gridIdx !== 9) {
     //   return;
     // }
     // console.log(map);
@@ -158,14 +163,24 @@ const partTwo = () => {
       const v = map.get(key);
       m.set(key, v === "#" ? "." : "#");
 
-      const newLor = getLineOfReflection({ rows, cols, map: m });
-      console.log("lor", i, r, c, key, map.get(key));
-      if (
-        newLor !== undefined &&
-        !(lor.type === newLor.type && lor.value === newLor.value)
-      ) {
+      // Oh that's funny, we weren't passing lor as a second arg...
+      const newLor = getLineOfReflection({ rows, cols, map: m }, lor);
+      // console.log(
+      //   "lor",
+      //   i,
+      //   r,
+      //   c,
+      //   key,
+      //   map.get(key),
+      //   m.get(key),
+      //   newLor?.value,
+      //   newLor?.type,
+      //   lor.type,
+      //   lor.value
+      // );
+      if (newLor !== undefined) {
         lor = newLor;
-        // console.log("Found for grid..", gridIdx);
+        console.log("Found for grid..", gridIdx);
         break;
       }
       // console.log("v", v, r, c);
@@ -194,3 +209,8 @@ const partTwo = () => {
 console.time("two");
 console.log("TWO", partTwo());
 console.timeEnd("two");
+
+// Oh I see the problem.
+// We're returning the first LoR we find, as soon as we find it...
+// Jeez why does it take so long??
+// 30s...
